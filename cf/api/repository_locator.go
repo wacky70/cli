@@ -6,6 +6,8 @@ import (
 
 	"github.com/cloudfoundry/cli/cf/api/environment_variable_groups"
 	"github.com/cloudfoundry/cli/cf/api/organizations"
+	"github.com/cloudfoundry/cli/cf/v3/repository"
+	"github.com/cloudfoundry/go-ccapi/v3/client"
 
 	"github.com/cloudfoundry/cli/cf/api/app_events"
 	api_app_files "github.com/cloudfoundry/cli/cf/api/app_files"
@@ -72,6 +74,8 @@ type RepositoryLocator struct {
 	featureFlagRepo                 feature_flags.FeatureFlagRepository
 	environmentVariableGroupRepo    environment_variable_groups.EnvironmentVariableGroupsRepository
 	copyAppSourceRepo               copy_application_source.CopyApplicationSourceRepository
+
+	v3Repository repository.Repository
 }
 
 func NewRepositoryLocator(config core_config.ReadWriter, gatewaysByName map[string]net.Gateway) (loc RepositoryLocator) {
@@ -128,6 +132,14 @@ func NewRepositoryLocator(config core_config.ReadWriter, gatewaysByName map[stri
 	loc.featureFlagRepo = feature_flags.NewCloudControllerFeatureFlagRepository(config, cloudControllerGateway)
 	loc.environmentVariableGroupRepo = environment_variable_groups.NewCloudControllerEnvironmentVariableGroupsRepository(config, cloudControllerGateway)
 	loc.copyAppSourceRepo = copy_application_source.NewCloudControllerCopyApplicationSourceRepository(config, cloudControllerGateway)
+
+	v3Client := client.NewClient(config.ApiEndpoint(), config.AccessToken())
+	tokenHandler := repository.NewTokenHandler(
+		v3Client,
+		loc.authRepo,
+	)
+	loc.v3Repository = repository.NewRepository(v3Client, tokenHandler)
+
 	return
 }
 
@@ -464,4 +476,13 @@ func (locator RepositoryLocator) SetCopyApplicationSourceRepository(repo copy_ap
 
 func (locator RepositoryLocator) GetCopyApplicationSourceRepository() copy_application_source.CopyApplicationSourceRepository {
 	return locator.copyAppSourceRepo
+}
+
+func (locator RepositoryLocator) GetV3Repository() repository.Repository {
+	return locator.v3Repository
+}
+
+func (locator RepositoryLocator) SetV3Repository(r repository.Repository) RepositoryLocator {
+	locator.v3Repository = r
+	return locator
 }
