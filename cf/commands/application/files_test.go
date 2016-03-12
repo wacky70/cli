@@ -12,6 +12,7 @@ import (
 
 	fakeappfiles "github.com/cloudfoundry/cli/cf/api/app_files/fakes"
 	fakerequirements "github.com/cloudfoundry/cli/cf/requirements/fakes"
+	testcmd "github.com/cloudfoundry/cli/testhelpers/commands"
 	testconfig "github.com/cloudfoundry/cli/testhelpers/configuration"
 	testterm "github.com/cloudfoundry/cli/testhelpers/terminal"
 
@@ -78,11 +79,12 @@ var _ = Describe("Files", func() {
 			})
 
 			It("fails with usage", func() {
-				Expect(func() { cmd.Requirements(factory, flagContext) }).To(Panic())
-				Expect(ui.Outputs).To(ContainSubstrings(
-					[]string{"FAILED"},
-					[]string{"Incorrect Usage. Requires an argument"},
-				))
+				reqs := cmd.Requirements(factory, flagContext)
+
+				err := testcmd.RunRequirements(reqs)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("Incorrect Usage"))
+				Expect(err.Error()).To(ContainSubstring("Requires an argument"))
 			})
 		})
 

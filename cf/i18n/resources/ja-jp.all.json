@@ -2512,10 +2512,6 @@
     "translation": "誤った使用法。引数として USERNAME、ORG、SPACE、ROLE が必要です\n\n"
   },
   {
-    "id": "Incorrect Usage. Requires an argument\n\n",
-    "translation": "誤った使用法。1 個の引数が必要です\n\n"
-  },
-  {
     "id": "Incorrect Usage. Requires app name as argument\n\n",
     "translation": "誤った使用法。引数としてアプリ名が必要です\n\n"
   },
@@ -3478,6 +3474,10 @@
   {
     "id": "Request pseudo-tty allocation",
     "translation": "pseudo-tty 割り振りを要求します"
+  },
+  {
+    "id": "Requires an argument",
+    "translation": "1 個の引数が必要です"
   },
   {
     "id": "Restage an app",

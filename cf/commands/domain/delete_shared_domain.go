@@ -37,14 +37,18 @@ func (cmd *DeleteSharedDomain) MetaData() command_registry.CommandMetadata {
 }
 
 func (cmd *DeleteSharedDomain) Requirements(requirementsFactory requirements.Factory, fc flags.FlagContext) []requirements.Requirement {
-	if len(fc.Args()) != 1 {
-		cmd.ui.Failed(T("Incorrect Usage. Requires an argument\n\n") + command_registry.Commands.CommandUsage("delete-shared-domain"))
-	}
+	usageReq := requirements.NewUsageRequirement(command_registry.CliCommandUsagePresenter(cmd),
+		T("Requires an argument"),
+		func() bool {
+			return len(fc.Args()) != 1
+		},
+	)
 
 	loginReq := requirementsFactory.NewLoginRequirement()
 	cmd.orgReq = requirementsFactory.NewTargetedOrgRequirement()
 
 	reqs := []requirements.Requirement{
+		usageReq,
 		loginReq,
 		cmd.orgReq,
 	}

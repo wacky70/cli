@@ -2512,10 +2512,6 @@
     "translation": "Syntaxe incorrecte. Requiert NOM_UTILISATEUR, ORG, ESPACE, ROLE comme arguments\n\n"
   },
   {
-    "id": "Incorrect Usage. Requires an argument\n\n",
-    "translation": "Syntaxe incorrecte. Requiert un argument\n\n"
-  },
-  {
     "id": "Incorrect Usage. Requires app name as argument\n\n",
     "translation": "Syntaxe incorrecte. Requiert le nom d'application comme argument\n\n"
   },
@@ -3478,6 +3474,10 @@
   {
     "id": "Request pseudo-tty allocation",
     "translation": "Demander l'allocation pseudo-tty "
+  },
+  {
+    "id": "Requires an argument",
+    "translation": "Requiert un argument"
   },
   {
     "id": "Restage an app",

@@ -3,6 +3,7 @@ package application_test
 import (
 	testApplication "github.com/cloudfoundry/cli/cf/api/applications/fakes"
 	"github.com/cloudfoundry/cli/cf/command_registry"
+	"github.com/cloudfoundry/cli/cf/commands/application"
 	"github.com/cloudfoundry/cli/cf/configuration/core_config"
 	"github.com/cloudfoundry/cli/cf/errors"
 	"github.com/cloudfoundry/cli/cf/models"
@@ -72,13 +73,35 @@ var _ = Describe("restage command", func() {
 			Expect(runCommand("my-app")).To(BeFalse())
 		})
 
-		It("fails with usage when no arguments are given", func() {
-			passed := runCommand()
-			Expect(ui.Outputs).To(ContainSubstrings(
-				[]string{"Incorrect Usage", "Requires", "argument"},
-			))
-			Expect(passed).To(BeFalse())
+		Context("when not provided exactly one arg", func() {
+			var cmd command_registry.Command
+			var flagContext flags.FlagContext
+
+			BeforeEach(func() {
+				deps.Ui = ui
+				deps.RepoLocator = deps.RepoLocator.SetApplicationRepository(appRepo)
+				deps.Config = configRepo
+
+				//inject fake 'command dependency' into registry
+				command_registry.Register(stagingWatcher)
+
+				cmd = &application.Restage{}
+				cmd.SetDependency(deps, false)
+				flagContext = flags.NewFlagContext(cmd.MetaData().Flags)
+			})
+
+			It("should fail with usage", func() {
+				flagContext.Parse("app-name", "something-else")
+
+				reqs := cmd.Requirements(requirementsFactory, flagContext)
+
+				err := testcmd.RunRequirements(reqs)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("Incorrect Usage"))
+				Expect(err.Error()).To(ContainSubstring("Requires an argument"))
+			})
 		})
+
 		It("fails if a space is not targeted", func() {
 			requirementsFactory.LoginSuccess = true
 			requirementsFactory.TargetedSpaceSuccess = false

@@ -3,15 +3,16 @@ package application_test
 import (
 	appCmdFakes "github.com/cloudfoundry/cli/cf/commands/application/fakes"
 	"github.com/cloudfoundry/cli/cf/models"
+	"github.com/cloudfoundry/cli/flags"
 	testcmd "github.com/cloudfoundry/cli/testhelpers/commands"
 	testconfig "github.com/cloudfoundry/cli/testhelpers/configuration"
 	testreq "github.com/cloudfoundry/cli/testhelpers/requirements"
 	testterm "github.com/cloudfoundry/cli/testhelpers/terminal"
 
 	"github.com/cloudfoundry/cli/cf/command_registry"
+	"github.com/cloudfoundry/cli/cf/commands/application"
 	"github.com/cloudfoundry/cli/cf/configuration/core_config"
 	traceFakes "github.com/cloudfoundry/cli/cf/trace/fakes"
-	. "github.com/cloudfoundry/cli/testhelpers/matchers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -78,26 +79,40 @@ var _ = Describe("restart command", func() {
 	})
 
 	Describe("requirements", func() {
-		It("fails with usage when not provided exactly one arg", func() {
-			requirementsFactory.LoginSuccess = true
-			runCommand()
-			Expect(ui.Outputs).To(ContainSubstrings(
-				[]string{"Incorrect Usage", "Requires an argument"},
-			))
+		Context("when not provided exactly one arg", func() {
+			var cmd command_registry.Command
+			var flagContext flags.FlagContext
+
+			BeforeEach(func() {
+				cmd = &application.Restart{}
+				cmd.SetDependency(deps, false)
+				flagContext = flags.NewFlagContext(cmd.MetaData().Flags)
+			})
+
+			It("should fail with usage", func() {
+				flagContext.Parse("app-name", "something-else")
+
+				reqs := cmd.Requirements(requirementsFactory, flagContext)
+
+				err := testcmd.RunRequirements(reqs)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("Incorrect Usage"))
+				Expect(err.Error()).To(ContainSubstring("Requires an argument"))
+			})
 		})
 
 		It("fails when not logged in", func() {
 			requirementsFactory.Application = app
 			requirementsFactory.TargetedSpaceSuccess = true
 
-			Expect(runCommand()).To(BeFalse())
+			Expect(runCommand("app-name")).To(BeFalse())
 		})
 
 		It("fails when a space is not targeted", func() {
 			requirementsFactory.Application = app
 			requirementsFactory.LoginSuccess = true
 
-			Expect(runCommand()).To(BeFalse())
+			Expect(runCommand("app-name")).To(BeFalse())
 		})
 	})
 

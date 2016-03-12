@@ -6,11 +6,13 @@ import (
 	"github.com/cloudfoundry/cli/cf/configuration/core_config"
 	"github.com/cloudfoundry/cli/cf/errors"
 	"github.com/cloudfoundry/cli/cf/models"
+	"github.com/cloudfoundry/cli/flags"
 	testcmd "github.com/cloudfoundry/cli/testhelpers/commands"
 	testconfig "github.com/cloudfoundry/cli/testhelpers/configuration"
 	testreq "github.com/cloudfoundry/cli/testhelpers/requirements"
 	testterm "github.com/cloudfoundry/cli/testhelpers/terminal"
 
+	"github.com/cloudfoundry/cli/cf/commands/application"
 	. "github.com/cloudfoundry/cli/testhelpers/matchers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -60,13 +62,26 @@ var _ = Describe("env command", func() {
 		})
 	})
 
-	It("fails with usage when no app name is given", func() {
-		passed := runCommand()
+	Context("when not provided exactly one arg", func() {
+		var cmd command_registry.Command
+		var flagContext flags.FlagContext
 
-		Expect(ui.Outputs).To(ContainSubstrings(
-			[]string{"Incorrect Usage", "Requires", "argument"},
-		))
-		Expect(passed).To(BeFalse())
+		BeforeEach(func() {
+			cmd = &application.Env{}
+			cmd.SetDependency(deps, false)
+			flagContext = flags.NewFlagContext(cmd.MetaData().Flags)
+		})
+
+		It("should fail with usage", func() {
+			flagContext.Parse("app-name", "something-else")
+
+			reqs := cmd.Requirements(requirementsFactory, flagContext)
+
+			err := testcmd.RunRequirements(reqs)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("Incorrect Usage"))
+			Expect(err.Error()).To(ContainSubstring("Requires an argument"))
+		})
 	})
 
 	It("fails with usage when the app cannot be found", func() {

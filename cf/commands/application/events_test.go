@@ -8,6 +8,7 @@ import (
 	"github.com/cloudfoundry/cli/cf/configuration/core_config"
 	"github.com/cloudfoundry/cli/cf/errors"
 	"github.com/cloudfoundry/cli/cf/models"
+	"github.com/cloudfoundry/cli/flags"
 	testcmd "github.com/cloudfoundry/cli/testhelpers/commands"
 	testconfig "github.com/cloudfoundry/cli/testhelpers/configuration"
 	testreq "github.com/cloudfoundry/cli/testhelpers/requirements"
@@ -15,6 +16,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/cloudfoundry/cli/cf/commands/application"
 	. "github.com/cloudfoundry/cli/testhelpers/matchers"
 )
 
@@ -47,12 +49,30 @@ var _ = Describe("events command", func() {
 		return testcmd.RunCliCommand("events", args, requirementsFactory, updateCommandDependency, false)
 	}
 
-	It("fails with usage when called without an app name", func() {
-		passed := runCommand()
-		Expect(ui.Outputs).To(ContainSubstrings(
-			[]string{"Incorrect Usage", "Requires", "argument"},
-		))
-		Expect(passed).To(BeFalse())
+	Context("when not provided exactly one arg", func() {
+		var cmd command_registry.Command
+		var flagContext flags.FlagContext
+
+		BeforeEach(func() {
+			deps.Ui = ui
+			deps.Config = configRepo
+			deps.RepoLocator = deps.RepoLocator.SetAppEventsRepository(eventsRepo)
+
+			cmd = &application.Events{}
+			cmd.SetDependency(deps, false)
+			flagContext = flags.NewFlagContext(cmd.MetaData().Flags)
+		})
+
+		It("should fail with usage", func() {
+			flagContext.Parse("app-name", "something-else")
+
+			reqs := cmd.Requirements(requirementsFactory, flagContext)
+
+			err := testcmd.RunRequirements(reqs)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("Incorrect Usage"))
+			Expect(err.Error()).To(ContainSubstring("Requires an argument"))
+		})
 	})
 
 	It("lists events given an app name", func() {

@@ -40,13 +40,17 @@ TIP:
 }
 
 func (cmd *Files) Requirements(requirementsFactory requirements.Factory, c flags.FlagContext) []requirements.Requirement {
-	if len(c.Args()) < 1 || len(c.Args()) > 2 {
-		cmd.ui.Failed(T("Incorrect Usage. Requires an argument\n\n") + command_registry.Commands.CommandUsage("files"))
-	}
+	usageReq := requirements.NewUsageRequirement(command_registry.CliCommandUsagePresenter(cmd),
+		T("Requires an argument"),
+		func() bool {
+			return len(c.Args()) < 1 || len(c.Args()) > 2
+		},
+	)
 
 	cmd.appReq = requirementsFactory.NewDEAApplicationRequirement(c.Args()[0])
 
 	reqs := []requirements.Requirement{
+		usageReq,
 		requirementsFactory.NewLoginRequirement(),
 		requirementsFactory.NewTargetedSpaceRequirement(),
 		cmd.appReq,

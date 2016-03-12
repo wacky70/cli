@@ -32,13 +32,17 @@ func (cmd *Events) MetaData() command_registry.CommandMetadata {
 }
 
 func (cmd *Events) Requirements(requirementsFactory requirements.Factory, c flags.FlagContext) []requirements.Requirement {
-	if len(c.Args()) != 1 {
-		cmd.ui.Failed(T("Incorrect Usage. Requires an argument\n\n") + command_registry.Commands.CommandUsage("events"))
-	}
+	usageReq := requirements.NewUsageRequirement(command_registry.CliCommandUsagePresenter(cmd),
+		T("Requires an argument"),
+		func() bool {
+			return len(c.Args()) != 1
+		},
+	)
 
 	cmd.appReq = requirementsFactory.NewApplicationRequirement(c.Args()[0])
 
 	reqs := []requirements.Requirement{
+		usageReq,
 		requirementsFactory.NewLoginRequirement(),
 		requirementsFactory.NewTargetedSpaceRequirement(),
 		cmd.appReq,

@@ -8,6 +8,7 @@ import (
 	"github.com/cloudfoundry/cli/cf/errors"
 	"github.com/cloudfoundry/cli/cf/models"
 	"github.com/cloudfoundry/cli/cf/terminal"
+	"github.com/cloudfoundry/cli/flags"
 	testcmd "github.com/cloudfoundry/cli/testhelpers/commands"
 	testconfig "github.com/cloudfoundry/cli/testhelpers/configuration"
 	testlogs "github.com/cloudfoundry/cli/testhelpers/logs"
@@ -50,13 +51,26 @@ var _ = Describe("logs command", func() {
 	}
 
 	Describe("requirements", func() {
-		It("fails with usage when called without one argument", func() {
-			requirementsFactory.LoginSuccess = true
+		Context("when not provided exactly one arg", func() {
+			var cmd command_registry.Command
+			var flagContext flags.FlagContext
 
-			runCommand()
-			Expect(ui.Outputs).To(ContainSubstrings(
-				[]string{"Incorrect Usage", "Requires an argument"},
-			))
+			BeforeEach(func() {
+				cmd = &Logs{}
+				cmd.SetDependency(deps, false)
+				flagContext = flags.NewFlagContext(cmd.MetaData().Flags)
+			})
+
+			It("should fail with usage", func() {
+				flagContext.Parse("app-name", "something-else")
+
+				reqs := cmd.Requirements(requirementsFactory, flagContext)
+
+				err := testcmd.RunRequirements(reqs)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("Incorrect Usage"))
+				Expect(err.Error()).To(ContainSubstring("Requires an argument"))
+			})
 		})
 
 		It("fails requirements when not logged in", func() {

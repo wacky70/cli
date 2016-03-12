@@ -42,13 +42,17 @@ func (cmd *OrgUsers) MetaData() command_registry.CommandMetadata {
 }
 
 func (cmd *OrgUsers) Requirements(requirementsFactory requirements.Factory, fc flags.FlagContext) []requirements.Requirement {
-	if len(fc.Args()) != 1 {
-		cmd.ui.Failed(T("Incorrect Usage. Requires an argument\n\n") + command_registry.Commands.CommandUsage("org-users"))
-	}
+	usageReq := requirements.NewUsageRequirement(command_registry.CliCommandUsagePresenter(cmd),
+		T("Requires an argument"),
+		func() bool {
+			return len(fc.Args()) != 1
+		},
+	)
 
 	cmd.orgReq = requirementsFactory.NewOrganizationRequirement(fc.Args()[0])
 
 	reqs := []requirements.Requirement{
+		usageReq,
 		requirementsFactory.NewLoginRequirement(),
 		cmd.orgReq,
 	}

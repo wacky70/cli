@@ -2512,10 +2512,6 @@
     "translation": "올바르지 않은 사용법입니다. 인수로 USERNAME, ORG, SPACE, ROLE이 필요합니다.\n\n"
   },
   {
-    "id": "Incorrect Usage. Requires an argument\n\n",
-    "translation": "올바르지 않은 사용법입니다. 인수가 필요합니다.\n\n"
-  },
-  {
     "id": "Incorrect Usage. Requires app name as argument\n\n",
     "translation": "올바르지 않은 사용법입니다. 인수로 앱 이름이 필요합니다.\n\n"
   },
@@ -3478,6 +3474,10 @@
   {
     "id": "Request pseudo-tty allocation",
     "translation": "pseudo-tty 할당 요청"
+  },
+  {
+    "id": "Requires an argument",
+    "translation": "인수가 필요합니다"
   },
   {
     "id": "Restage an app",

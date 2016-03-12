@@ -2512,10 +2512,6 @@
     "translation": "Falsche Verwendung. Erfordert USERNAME, ORG, SPACE, ROLE als Argumente.\n\n"
   },
   {
-    "id": "Incorrect Usage. Requires an argument\n\n",
-    "translation": "Falsche Verwendung. Erfordert ein Argument.\n\n"
-  },
-  {
     "id": "Incorrect Usage. Requires app name as argument\n\n",
     "translation": "Falsche Verwendung. Erfordert den Namen einer App als Argument.\n\n"
   },
@@ -3478,6 +3474,10 @@
   {
     "id": "Request pseudo-tty allocation",
     "translation": "Pseudo-TTY-Zuordnung anfordern"
+  },
+  {
+    "id": "Requires an argument",
+    "translation": "Erfordert ein Argument"
   },
   {
     "id": "Restage an app",

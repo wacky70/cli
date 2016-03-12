@@ -6,6 +6,7 @@ import (
 	appCmdFakes "github.com/cloudfoundry/cli/cf/commands/application/fakes"
 	"github.com/cloudfoundry/cli/cf/configuration/core_config"
 	"github.com/cloudfoundry/cli/cf/models"
+	"github.com/cloudfoundry/cli/flags"
 	testcmd "github.com/cloudfoundry/cli/testhelpers/commands"
 	testconfig "github.com/cloudfoundry/cli/testhelpers/configuration"
 	"github.com/cloudfoundry/cli/testhelpers/maker"
@@ -14,6 +15,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/cloudfoundry/cli/cf/commands/application"
 	. "github.com/cloudfoundry/cli/testhelpers/matchers"
 )
 
@@ -77,13 +79,33 @@ var _ = Describe("scale command", func() {
 			Expect(testcmd.RunCliCommand("scale", args, requirementsFactory, updateCommandDependency, false)).To(BeFalse())
 		})
 
-		It("requires an app to be specified", func() {
-			passed := testcmd.RunCliCommand("scale", []string{"-m", "1G"}, requirementsFactory, updateCommandDependency, false)
+		Context("when not provided exactly one arg", func() {
+			var cmd command_registry.Command
+			var flagContext flags.FlagContext
 
-			Expect(ui.Outputs).To(ContainSubstrings(
-				[]string{"Incorrect Usage", "Requires", "argument"},
-			))
-			Expect(passed).To(BeFalse())
+			BeforeEach(func() {
+				deps.Ui = ui
+				deps.RepoLocator = deps.RepoLocator.SetApplicationRepository(appRepo)
+				deps.Config = config
+
+				//inject fake 'command dependency' into registry
+				command_registry.Register(restarter)
+
+				cmd = &application.Scale{}
+				cmd.SetDependency(deps, false)
+				flagContext = flags.NewFlagContext(cmd.MetaData().Flags)
+			})
+
+			It("should fail with usage", func() {
+				flagContext.Parse("app-name", "something-else")
+
+				reqs := cmd.Requirements(requirementsFactory, flagContext)
+
+				err := testcmd.RunRequirements(reqs)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("Incorrect Usage"))
+				Expect(err.Error()).To(ContainSubstring("Requires an argument"))
+			})
 		})
 
 		It("does not require any flags", func() {

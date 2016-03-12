@@ -44,14 +44,18 @@ func (cmd *UpdateBuildpack) MetaData() command_registry.CommandMetadata {
 }
 
 func (cmd *UpdateBuildpack) Requirements(requirementsFactory requirements.Factory, fc flags.FlagContext) []requirements.Requirement {
-	if len(fc.Args()) != 1 {
-		cmd.ui.Failed(T("Incorrect Usage. Requires an argument\n\n") + command_registry.Commands.CommandUsage("update-buildpack"))
-	}
+	usageReq := requirements.NewUsageRequirement(command_registry.CliCommandUsagePresenter(cmd),
+		T("Requires an argument"),
+		func() bool {
+			return len(fc.Args()) != 1
+		},
+	)
 
 	loginReq := requirementsFactory.NewLoginRequirement()
 	cmd.buildpackReq = requirementsFactory.NewBuildpackRequirement(fc.Args()[0])
 
 	reqs := []requirements.Requirement{
+		usageReq,
 		loginReq,
 		cmd.buildpackReq,
 	}

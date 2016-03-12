@@ -6,6 +6,7 @@ import (
 
 	. "github.com/cloudfoundry/cli/cf/commands/application"
 	"github.com/cloudfoundry/cli/cf/trace/fakes"
+	"github.com/cloudfoundry/cli/flags"
 
 	"github.com/cloudfoundry/cli/cf/api"
 	"github.com/cloudfoundry/cli/cf/command_registry"
@@ -282,11 +283,32 @@ var _ = Describe("start command", func() {
 			configRepo = testconfig.NewRepositoryWithDefaults()
 		})
 
-		It("fails with usage when not provided exactly one arg", func() {
-			callStart([]string{})
-			Expect(ui.Outputs).To(ContainSubstrings(
-				[]string{"Incorrect Usage", "Requires an argument"},
-			))
+		Context("when not provided exactly one arg", func() {
+			var cmd command_registry.Command
+			var flagContext flags.FlagContext
+
+			BeforeEach(func() {
+				deps.Ui = ui
+				deps.Config = configRepo
+
+				//inject fake 'Start' into registry
+				command_registry.Register(displayApp)
+
+				cmd = &Start{}
+				cmd.SetDependency(deps, false)
+				flagContext = flags.NewFlagContext(cmd.MetaData().Flags)
+			})
+
+			It("should fail with usage", func() {
+				flagContext.Parse("app-name", "something-else")
+
+				reqs := cmd.Requirements(requirementsFactory, flagContext)
+
+				err := testcmd.RunRequirements(reqs)
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("Incorrect Usage"))
+				Expect(err.Error()).To(ContainSubstring("Requires an argument"))
+			})
 		})
 
 		It("uses proper org name and space name", func() {
