@@ -49,7 +49,7 @@ type RepositoryLocator struct {
 	appBitsRepo                     applicationbits.CloudControllerApplicationBitsRepository
 	appSummaryRepo                  AppSummaryRepository
 	appInstancesRepo                appinstances.AppInstancesRepository
-	appEventsRepo                   appevents.AppEventsRepository
+	appEventsRepo                   appevents.Repository
 	appFilesRepo                    api_appfiles.AppFilesRepository
 	domainRepo                      DomainRepository
 	routeRepo                       RouteRepository
@@ -243,12 +243,12 @@ func (locator RepositoryLocator) GetAppInstancesRepository() appinstances.AppIns
 	return locator.appInstancesRepo
 }
 
-func (locator RepositoryLocator) SetAppEventsRepository(repo appevents.AppEventsRepository) RepositoryLocator {
+func (locator RepositoryLocator) SetAppEventsRepository(repo appevents.Repository) RepositoryLocator {
 	locator.appEventsRepo = repo
 	return locator
 }
 
-func (locator RepositoryLocator) GetAppEventsRepository() appevents.AppEventsRepository {
+func (locator RepositoryLocator) GetAppEventsRepository() appevents.Repository {
 	return locator.appEventsRepo
 }
 

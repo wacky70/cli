@@ -1,4 +1,3 @@
-cf/api/appevents/app_events.go:13:6: type name will be used as appevents.AppEventsRepository by other packages, and that stutters; consider calling this Repository
 cf/api/appfiles/app_files.go:12:6: type name will be used as appfiles.AppFilesRepository by other packages, and that stutters; consider calling this Repository
 cf/api/appinstances/app_instances.go:38:6: type name will be used as appinstances.AppInstancesRepository by other packages, and that stutters; consider calling this Repository
 cf/api/applicationbits/application_bits.go:26:6: type name will be used as applicationbits.ApplicationBitsRepository by other packages, and that stutters; consider calling this Repository
