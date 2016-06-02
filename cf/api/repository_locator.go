@@ -50,7 +50,7 @@ type RepositoryLocator struct {
 	appSummaryRepo                  AppSummaryRepository
 	appInstancesRepo                appinstances.AppInstancesRepository
 	appEventsRepo                   appevents.Repository
-	appFilesRepo                    api_appfiles.AppFilesRepository
+	appFilesRepo                    api_appfiles.Repository
 	domainRepo                      DomainRepository
 	routeRepo                       RouteRepository
 	routingAPIRepo                  RoutingAPIRepository
@@ -252,12 +252,12 @@ func (locator RepositoryLocator) GetAppEventsRepository() appevents.Repository {
 	return locator.appEventsRepo
 }
 
-func (locator RepositoryLocator) SetAppFileRepository(repo api_appfiles.AppFilesRepository) RepositoryLocator {
+func (locator RepositoryLocator) SetAppFileRepository(repo api_appfiles.Repository) RepositoryLocator {
 	locator.appFilesRepo = repo
 	return locator
 }
 
-func (locator RepositoryLocator) GetAppFilesRepository() api_appfiles.AppFilesRepository {
+func (locator RepositoryLocator) GetAppFilesRepository() api_appfiles.Repository {
 	return locator.appFilesRepo
 }
 
